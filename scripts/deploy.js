@@ -8,12 +8,12 @@ const hre = require("hardhat");
 
 async function main() {
  
-const USDC = await hre.ethers.getContractFactory("USDC");
-const USDT = await USDC.deploy();
+const hhcwToken = await hre.ethers.getContractFactory("hhcwToken");
+const Token = await hhcwToken.deploy();
 
-await USDT.deployed();
+await Token.deployed();
 
-  console.log("smart contract deploy here ",USDT.Address);
+  console.log("smart contract deploy here ",Token.Address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
