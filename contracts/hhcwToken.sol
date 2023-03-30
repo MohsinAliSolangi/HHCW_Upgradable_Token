@@ -1,3 +1,5 @@
+
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
@@ -7,22 +9,11 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error totalSupplyExceed();
-error pleaseSendTokenPrice();
-error TransferFaild();
-error pleaseEnterLessPrice();
 
 contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
     constructor() ERC20("HHCWToken", "HHCWToken") {}
 
     uint256 public supply = 20_000_000 ether;
-    uint256 public tokenPrice = 1;//wei
-
-    function setTokenPrice(uint256 _amount) public onlyOwner {
-    if(_amount>100){
-            revert pleaseEnterLessPrice();
-        }
-        tokenPrice = _amount;
-    }
 
     function pause() public onlyOwner {
         _pause();
@@ -32,13 +23,11 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
         _unpause();
     }
 
-    function mint(address to, uint256 _amount) public payable {
+    function mint(address to, uint256 _amount) public onlyOwner {
     if ((totalSupply() + _amount) > supply) {
             revert totalSupplyExceed();
         }
-    if(msg.value < (_amount*tokenPrice)){
-            revert pleaseSendTokenPrice();   
-        }
+   
         _mint(to, _amount);
     }
 
@@ -56,8 +45,6 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
         }
     }
 
-
-
     function _beforeTokenTransfer(address from, address to, uint256 amount)
         internal
         whenNotPaused
@@ -65,12 +52,5 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
     {
         super._beforeTokenTransfer(from, to, amount);
     }
-
-     //This is withdraw Function, OnlyOwner Can call this Function
-    function withdraw()public onlyOwner{
-        (bool success,)=msg.sender.call{value:address(this).balance}("");
-        if(!success){
-        revert TransferFaild();
-        } 
-    }
+ 
 }
