@@ -15,6 +15,10 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
 
     uint256 public supply = 20_000_000 ether;
 
+    function increaseTotalSupply(uint256 _supply) public onlyOwner{
+       supply +=_supply;
+    }
+    
     function pause() public onlyOwner {
         _pause();
     }
@@ -27,7 +31,6 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
     if ((totalSupply() + _amount) > supply) {
             revert totalSupplyExceed();
         }
-   
         _mint(to, _amount);
     }
 
@@ -53,4 +56,5 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
         super._beforeTokenTransfer(from, to, amount);
     }
  
+    
 }
