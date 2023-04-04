@@ -4,34 +4,23 @@
 pragma solidity ^0.8.9;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error totalSupplyExceed();
 
-contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
+contract hhcwToken is ERC20 , Ownable {
     constructor() ERC20("HHCWToken", "HHCWToken") {}
-
     uint256 public supply = 20_000_000 ether;
 
-    function increaseTotalSupply(uint256 _supply) public onlyOwner{
+    function increaseTotalSupply(uint256 _supply) public onlyOwner {
        supply +=_supply;
     }
     
-    function pause() public onlyOwner {
-        _pause();
-    }
-
-    function unpause() public onlyOwner {
-        _unpause();
-    }
-
     function mint(address to, uint256 _amount) public onlyOwner {
     if ((totalSupply() + _amount) > supply) {
             revert totalSupplyExceed();
         }
-        _mint(to, _amount);
+        _mint(to,_amount);
     }
 
     function airdrop(address[] memory recipients, uint256[] memory amounts) public onlyOwner {
@@ -48,13 +37,4 @@ contract hhcwToken is ERC20, ERC20Burnable, Pausable, Ownable {
         }
     }
 
-    function _beforeTokenTransfer(address from, address to, uint256 amount)
-        internal
-        whenNotPaused
-        override
-    {
-        super._beforeTokenTransfer(from, to, amount);
-    }
- 
-    
 }
