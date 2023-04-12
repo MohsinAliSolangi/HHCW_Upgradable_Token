@@ -92,7 +92,7 @@ contract Upgradeable is Ownable {
 
 contract HHCw_Proxy is Upgradeable {
 
-    fallback() external {
+    fallback() external payable {
     require(msg.data.length > 0, ERR_INVALID_DATA);
         address _impl = getImplementation();
         assembly {
