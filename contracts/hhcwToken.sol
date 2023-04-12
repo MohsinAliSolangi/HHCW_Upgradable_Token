@@ -9,12 +9,12 @@ error totalSupplyExceed();
 error waitForStartSale();
 error SaleSupplyExced();
 error pleaseSendTokenPrice();
-contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
+error TransferFaild();
+contract HHCWToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     /// @custom:oz-upgrades-unsafe-allow constructor
-    uint256 public supply = 20_000_000 ether;
-    uint256 public preSale = 5_000_000 ether;
-    uint256 public Sale = 5_000_000 ether;
-    uint256 public mintPrice = 1;
+    uint256 public supply;
+    uint256 public preSale;
+    uint256 public mintPrice;
     
     bool public sale;
     bool public presale;
@@ -27,7 +27,9 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     function initialize() initializer public {
         __ERC20_init("HHCWToken", "HHCWToken");
         __Ownable_init();
-      
+        supply = 20_000_000 ether;
+        preSale = 5_000_000 ether;
+        mintPrice = 1;
     }
     
     function startSale()public onlyOwner{
@@ -45,10 +47,14 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     }
 
     function increaseMintPrice(uint256 _mintPrice) public onlyOwner {
-       mintPrice +=_mintPrice;
+       mintPrice =_mintPrice;
+    }
+
+    function setpreSaleSuply(uint256 _presale) public onlyOwner{
+        preSale=_presale;
     }
     
-    function mint(address to, uint256 _amount) public payable onlyOwner {
+    function mint(address to, uint256 _amount) public payable {
     if(sale == false && presale == false){
         revert waitForStartSale();
     }
@@ -57,7 +63,7 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     }
 
     if(presale!=false){
-    if((totalSupply() + _amount)>(Sale)){
+    if((totalSupply() + _amount) > preSale){
         revert SaleSupplyExced();
     }
     if(msg.value < (_amount*mintPrice)) {
@@ -68,9 +74,6 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     }
 
     if(sale!=false){
-    if((totalSupply() + _amount)>(Sale)){
-        revert SaleSupplyExced();
-    }
     if(msg.value < (_amount*mintPrice)) {
         revert pleaseSendTokenPrice();   
     }
@@ -93,4 +96,15 @@ contract MyToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
             _mint(recipient,amount);
         }
     }
+
+    function withDraw() public onlyOwner{
+        (bool success,)=msg.sender.call{value:address(this).balance}("");
+        if(!success){
+        revert TransferFaild();
+        } 
+    }
+   
+   receive() external payable{} 
+   fallback() external payable {}
+
 }
