@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20BurnableUpgradeable.sol";
 
 error totalSupplyExceed();
 error waitForStartSale();
 error SaleSupplyExced();
 error pleaseSendTokenPrice();
 error TransferFaild();
-contract HHCWToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
+contract HHCWToken is ERC20BurnableUpgradeable {
     /// @custom:oz-upgrades-unsafe-allow constructor
     uint256 public supply;
     uint256 public preSale;
     uint256 public mintPrice;
+    address public owner;
+    
     
     bool public sale;
     bool public presale;
@@ -23,21 +23,31 @@ contract HHCWToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
     constructor() {
         _disableInitializers();
     }
+    
+    modifier onlyOwner() {
+        require(owner == _msgSender(), "Caller is not admin");
+        _;
+    }
 
     function initialize() initializer public {
         __ERC20_init("HHCWToken", "HHCWToken");
-        __Ownable_init();
+        owner=_msgSender();
         supply = 20_000_000 ether;
         preSale = 5_000_000 ether;
         mintPrice = 1;
     }
     
-    function startSale()public onlyOwner{
+    function transferOwnership(address _newOwner) external onlyOwner {
+        require(_newOwner != address(0), "Err: Zero address");
+        owner = _newOwner;
+    }
+
+    function startSale() public onlyOwner{
         presale=false;
         sale=true;
     }
 
-    function startPreSale()public onlyOwner{
+    function startPreSale() public onlyOwner{
         sale=false;
         presale=true;
     }
@@ -107,5 +117,4 @@ contract HHCWToken is Initializable, ERC20Upgradeable, OwnableUpgradeable {
    receive() external payable{} 
    fallback() external payable {}
    
-//0x4f82B8655722072f8259221f20bE76507325827b
 }
